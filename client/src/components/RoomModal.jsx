@@ -13,19 +13,27 @@ export default function RoomModal({
   const [copiedCode, setCopiedCode] = useState(false);
   const [selectedHost, setSelectedHost] = useState('');
 
-  // Default to the first detected LAN address if available, or window.location.host
+  const isPublicDomain = typeof window !== 'undefined' && 
+    !['localhost', '127.0.0.1'].includes(window.location.hostname) &&
+    !/^192\.168\./.test(window.location.hostname) &&
+    !/^10\./.test(window.location.hostname);
+
+  // In production (e.g. onrender.com), use window.location.host
+  // In local development, allow switching between detected LAN Wi-Fi IPs
   useEffect(() => {
-    if (lanAddresses.length > 0) {
+    if (isPublicDomain) {
+      setSelectedHost(window.location.host);
+    } else if (lanAddresses.length > 0) {
       setSelectedHost(`${lanAddresses[0].ip}:5173`);
     } else {
       setSelectedHost(window.location.host || 'localhost:5173');
     }
-  }, [lanAddresses]);
+  }, [lanAddresses, isPublicDomain]);
 
   if (!isOpen || !roomCode) return null;
 
   const protocol = window.location.protocol || 'http:';
-  const joinUrl = `${protocol}//${selectedHost}/?room=${roomCode}`;
+  const joinUrl = `${protocol}//${selectedHost || window.location.host}/?room=${roomCode}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(joinUrl);
@@ -96,8 +104,8 @@ export default function RoomModal({
           </button>
         </div>
 
-        {/* LAN IP Network Selector (if multiple interfaces detected) */}
-        {lanAddresses.length > 0 && (
+        {/* LAN IP Network Selector (shown ONLY when developing locally on LAN) */}
+        {!isPublicDomain && lanAddresses.length > 0 && (
           <div className="mt-3 space-y-1.5">
             <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5 text-brand-500" />
@@ -140,7 +148,11 @@ export default function RoomModal({
         {/* Info Tip */}
         <div className="mt-4 p-2.5 rounded-xl bg-brand-500/5 dark:bg-brand-500/10 border border-brand-500/20 flex items-start gap-2 text-[11px] text-slate-600 dark:text-slate-300">
           <Info className="w-4 h-4 text-brand-500 shrink-0 mt-0.5" />
-          <span>Make sure your phone and laptop are connected to the same Wi-Fi router or mobile hotspot.</span>
+          <span>
+            {isPublicDomain 
+              ? 'Works globally across any network, Wi-Fi, or cellular connection!' 
+              : 'Make sure your phone and laptop are connected to the same Wi-Fi router.'}
+          </span>
         </div>
       </div>
     </div>

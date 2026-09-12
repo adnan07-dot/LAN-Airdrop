@@ -2,16 +2,27 @@ import { io } from 'socket.io-client';
 
 /**
  * Determine the optimal signaling server URL.
- * In local dev and LAN testing, if the phone opens http://192.168.1.15:5173,
- * the signaling server is at http://192.168.1.15:3001.
+ * - In local dev (port 5173): Connects to http://<hostname>:3001
+ * - In production (e.g. Render, Railway, Vercel): Uses current domain origin (port 443/80)
  */
 function getSignalingUrl() {
   if (import.meta.env.VITE_SIGNALING_SERVER_URL) {
     return import.meta.env.VITE_SIGNALING_SERVER_URL;
   }
-  const hostname = window.location.hostname || 'localhost';
-  const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
-  return `${protocol}//${hostname}:3001`;
+  
+  if (typeof window !== 'undefined') {
+    const isDev = window.location.port === '5173' || 
+                  (window.location.hostname === 'localhost' && window.location.port !== '3001' && window.location.port !== '');
+    if (isDev) {
+      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+      const hostname = window.location.hostname || 'localhost';
+      return `${protocol}//${hostname}:3001`;
+    }
+    // In production (Render, Railway, etc.), use the same origin
+    return window.location.origin;
+  }
+  
+  return 'http://localhost:3001';
 }
 
 class SignalingService {
@@ -27,9 +38,12 @@ class SignalingService {
     }
 
     if (!this.socket) {
+      this.serverUrl = getSignalingUrl();
+      console.log(`[Signaling Client] Connecting to: ${this.serverUrl}`);
+
       this.socket = io(this.serverUrl, {
         transports: ['websocket', 'polling'],
-        reconnectionAttempts: 20,
+        reconnectionAttempts: 25,
         reconnectionDelay: 1000,
         timeout: 10000
       });
@@ -109,6 +123,9 @@ class SignalingService {
     if (this.socket) {
       this.socket.on(event, callback);
     }
+
+    // Return unregister callback for clean component unmounts
+    return () => this.off(event, callback);
   }
 
   off(event, callback) {
