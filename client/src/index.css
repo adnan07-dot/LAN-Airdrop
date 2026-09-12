@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-mesh-1: rgba(99, 102, 241, 0.08);
+    --bg-mesh-2: rgba(14, 165, 233, 0.06);
+    --bg-mesh-3: rgba(168, 85, 247, 0.06);
+  }
+
+  .dark {
+    --bg-mesh-1: rgba(99, 102, 241, 0.12);
+    --bg-mesh-2: rgba(14, 165, 233, 0.08);
+    --bg-mesh-3: rgba(168, 85, 247, 0.08);
+  }
+
+  body {
+    background-image: 
+      radial-gradient(at 10% 10%, var(--bg-mesh-1) 0px, transparent 50%),
+      radial-gradient(at 90% 20%, var(--bg-mesh-2) 0px, transparent 50%),
+      radial-gradient(at 50% 90%, var(--bg-mesh-3) 0px, transparent 60%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+}
+
+/* Custom Glassmorphic Utilities */
+@layer components {
+  .glass-panel {
+    @apply bg-white/75 dark:bg-slate-900/75 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl shadow-slate-900/5 dark:shadow-black/20;
+  }
+
+  .glass-card {
+    @apply bg-white/60 dark:bg-slate-900/60 backdrop-blur-lg border border-slate-200/60 dark:border-slate-800/60 transition-all duration-200;
+  }
+
+  .glass-card-hover {
+    @apply hover:border-brand-400/60 dark:hover:border-brand-500/60 hover:shadow-lg hover:shadow-brand-500/10 dark:hover:shadow-brand-500/10 hover:-translate-y-0.5;
+  }
+
+  .glass-input {
+    @apply bg-slate-100/80 dark:bg-slate-950/70 border border-slate-300 dark:border-slate-800 focus:border-brand-500 dark:focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-brand-400/20 outline-none transition-all;
+  }
+
+  .btn-primary {
+    @apply relative inline-flex items-center justify-center gap-2 font-medium px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white shadow-md shadow-brand-500/25 hover:shadow-lg hover:shadow-brand-500/35 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-secondary {
+    @apply relative inline-flex items-center justify-center gap-2 font-medium px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700/90 border border-slate-200 dark:border-slate-700/80 active:scale-[0.98] transition-all;
+  }
+
+  .btn-danger {
+    @apply relative inline-flex items-center justify-center gap-2 font-medium px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 transition-all;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
+}
+
+/* Glowing animations & accents */
+.glow-brand {
+  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.35);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.35);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.35);
+}
