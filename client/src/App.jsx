@@ -93,9 +93,11 @@ export default function App() {
       onPeerStatusChange: (peerId, status, peerInfo) => {
         setPeerStatuses(prev => ({ ...prev, [peerId]: status }));
         if (status === 'connected') {
-          addToast('success', 'Direct P2P Ready', `${peerInfo?.peerName || 'Device'} is connected.`);
+          addToast('success', 'Direct P2P Ready', `${peerInfo?.peerName || 'Device'} is connected directly.`);
+        } else if (status === 'relay') {
+          addToast('info', 'Secure Relay Ready', `${peerInfo?.peerName || 'Device'} is ready for streaming transfer.`);
         } else if (status === 'failed') {
-          addToast('error', 'P2P Notice', `Direct channel with peer encountered network restrictions.`);
+          addToast('warning', 'P2P Notice', `Direct channel encountered network restrictions. Relay active.`);
         }
       },
       onTransferProgress: (progressData) => {
@@ -298,7 +300,7 @@ export default function App() {
     if (isAnyTransferring) {
       connectionStatus = 'transferring';
     } else if (peers.length > 0) {
-      const anyConnected = Object.values(peerStatuses).some(s => s === 'connected');
+      const anyConnected = Object.values(peerStatuses).some(s => s === 'connected' || s === 'relay');
       connectionStatus = anyConnected ? 'connected' : 'connecting';
     } else {
       connectionStatus = 'waiting';

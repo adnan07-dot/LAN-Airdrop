@@ -212,14 +212,68 @@ io.on('connection', (socket) => {
   });
 
   /**
-   * 5. LEAVE ROOM (Explicit)
+   * 5. RESILIENT STREAMING RELAY FALLBACK (In-memory, Zero Storage)
+   * Used seamlessly if WebRTC direct channel is blocked by mobile carrier NAT/firewall.
+   */
+  socket.on('relay-file-metadata', ({ targetPeerId, metadata }) => {
+    if (!targetPeerId || !metadata) return;
+    io.to(targetPeerId).emit('relay-file-metadata', {
+      senderId: socket.id,
+      metadata
+    });
+  });
+
+  socket.on('relay-file-chunk', ({ targetPeerId, chunk, fileId, chunkIndex }) => {
+    if (!targetPeerId || !chunk) return;
+    io.to(targetPeerId).emit('relay-file-chunk', {
+      senderId: socket.id,
+      chunk,
+      fileId,
+      chunkIndex
+    });
+  });
+
+  socket.on('relay-file-complete', ({ targetPeerId, fileId }) => {
+    if (!targetPeerId || !fileId) return;
+    io.to(targetPeerId).emit('relay-file-complete', {
+      senderId: socket.id,
+      fileId
+    });
+  });
+
+  socket.on('relay-file-cancel', ({ targetPeerId, fileId }) => {
+    if (!targetPeerId || !fileId) return;
+    io.to(targetPeerId).emit('relay-file-cancel', {
+      senderId: socket.id,
+      fileId
+    });
+  });
+
+  socket.on('relay-file-pause', ({ targetPeerId, fileId }) => {
+    if (!targetPeerId || !fileId) return;
+    io.to(targetPeerId).emit('relay-file-pause', {
+      senderId: socket.id,
+      fileId
+    });
+  });
+
+  socket.on('relay-file-resume', ({ targetPeerId, fileId }) => {
+    if (!targetPeerId || !fileId) return;
+    io.to(targetPeerId).emit('relay-file-resume', {
+      senderId: socket.id,
+      fileId
+    });
+  });
+
+  /**
+   * 6. LEAVE ROOM (Explicit)
    */
   socket.on('leave-room', () => {
     handlePeerDisconnect(socket);
   });
 
   /**
-   * 6. SOCKET DISCONNECT
+   * 7. SOCKET DISCONNECT
    */
   socket.on('disconnect', (reason) => {
     handlePeerDisconnect(socket);

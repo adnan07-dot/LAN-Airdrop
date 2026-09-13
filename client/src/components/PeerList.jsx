@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Smartphone, Monitor, Tablet, CheckCircle, Radio, QrCode, CheckSquare, Square, Wifi } from 'lucide-react';
+import { Users, Smartphone, Monitor, Tablet, CheckCircle, Radio, QrCode, CheckSquare, Square, Wifi, Shield, RefreshCw } from 'lucide-react';
 import { getAvatarGradient } from '../services/utils';
 
 export default function PeerList({
@@ -20,6 +20,42 @@ export default function PeerList({
       case 'desktop':
       default:
         return Monitor;
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'connected':
+        return {
+          label: 'Direct P2P',
+          color: 'text-emerald-500',
+          dot: 'bg-emerald-500 animate-pulse'
+        };
+      case 'relay':
+        return {
+          label: 'Relay Ready',
+          color: 'text-cyan-500 dark:text-cyan-400',
+          dot: 'bg-cyan-500'
+        };
+      case 'connecting':
+        return {
+          label: 'Connecting...',
+          color: 'text-amber-500',
+          dot: 'bg-amber-500 animate-ping'
+        };
+      case 'closed':
+      case 'disconnected':
+        return {
+          label: 'Offline',
+          color: 'text-rose-500',
+          dot: 'bg-rose-500'
+        };
+      default:
+        return {
+          label: 'Connecting...',
+          color: 'text-amber-500',
+          dot: 'bg-amber-500 animate-ping'
+        };
     }
   };
 
@@ -84,9 +120,9 @@ export default function PeerList({
         {/* Remote Connected Peers */}
         {peers.map((peer) => {
           const isSelected = selectedPeerIds.includes(peer.socketId);
-          const status = peerStatuses[peer.socketId] || 'connected';
+          const rawStatus = peerStatuses[peer.socketId] || 'connecting';
+          const statusConfig = getStatusBadge(rawStatus);
           const DeviceIcon = getDeviceIcon(peer.deviceType);
-          const isChannelReady = status === 'connected';
 
           return (
             <div
@@ -108,8 +144,9 @@ export default function PeerList({
                     <DeviceIcon className="w-3 h-3" />
                     <span className="capitalize">{peer.deviceType || 'Device'}</span>
                     <span>•</span>
-                    <span className={isChannelReady ? 'text-emerald-500' : 'text-amber-500'}>
-                      {isChannelReady ? 'Direct P2P' : status}
+                    <span className={`flex items-center gap-1 font-medium ${statusConfig.color}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
+                      <span>{statusConfig.label}</span>
                     </span>
                   </div>
                 </div>
@@ -142,7 +179,7 @@ export default function PeerList({
 
             <button
               onClick={onOpenRoomModal}
-              className="btn-secondary py-1.5 px-3 text-xs whitespace-nowrap"
+              className="btn-secondary py-1.5 px-3 text-xs whitespace-nowrap cursor-pointer"
             >
               <QrCode className="w-3.5 h-3.5 mr-1 text-brand-500" />
               Show QR

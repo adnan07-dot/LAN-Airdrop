@@ -114,6 +114,37 @@ class SignalingService {
     s.emit('signal-ice-candidate', { targetPeerId, candidate });
   }
 
+  // --- Resilient Relay Fallback Socket Methods ---
+  sendRelayMetadata(targetPeerId, metadata) {
+    const s = this.getSocket();
+    s.emit('relay-file-metadata', { targetPeerId, metadata });
+  }
+
+  sendRelayChunk(targetPeerId, chunk, fileId, chunkIndex) {
+    const s = this.getSocket();
+    s.emit('relay-file-chunk', { targetPeerId, chunk, fileId, chunkIndex });
+  }
+
+  sendRelayComplete(targetPeerId, fileId) {
+    const s = this.getSocket();
+    s.emit('relay-file-complete', { targetPeerId, fileId });
+  }
+
+  sendRelayCancel(targetPeerId, fileId) {
+    const s = this.getSocket();
+    s.emit('relay-file-cancel', { targetPeerId, fileId });
+  }
+
+  sendRelayPause(targetPeerId, fileId) {
+    const s = this.getSocket();
+    s.emit('relay-file-pause', { targetPeerId, fileId });
+  }
+
+  sendRelayResume(targetPeerId, fileId) {
+    const s = this.getSocket();
+    s.emit('relay-file-resume', { targetPeerId, fileId });
+  }
+
   on(event, callback) {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
