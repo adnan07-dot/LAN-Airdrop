@@ -11,18 +11,24 @@ function getSignalingUrl() {
   }
   
   if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname || 'localhost';
     const isDev = window.location.port === '5173' || 
-                  (window.location.hostname === 'localhost' && window.location.port !== '3001' && window.location.port !== '');
+                  (hostname === 'localhost' && window.location.port !== '3001' && window.location.port !== '');
     if (isDev) {
       const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
-      const hostname = window.location.hostname || 'localhost';
       return `${protocol}//${hostname}:3001`;
     }
-    // In production (Render, Railway, etc.), use the same origin
+    
+    // When frontend is deployed on Vercel, Netlify, or GitHub Pages, default to the live Render signaling backend
+    if (hostname.includes('vercel.app') || hostname.includes('netlify.app') || hostname.includes('github.io')) {
+      return 'https://lan-airdrop.onrender.com';
+    }
+
+    // In unified fullstack deployment (e.g. on Render/Railway), use same origin
     return window.location.origin;
   }
   
-  return 'http://localhost:3001';
+  return 'https://lan-airdrop.onrender.com';
 }
 
 class SignalingService {
